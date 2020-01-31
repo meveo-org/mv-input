@@ -29,6 +29,7 @@ export class MvInput extends LitElement {
         --color: var(--mv-input-color, #818181);
         --min-width: var(--mv-input-min-width, auto);
         --max-width: var(--mv-input-max-width, auto);
+        --margin: var(--mv-input-margin, 0);
         --border: var(--mv-input-border, 1px solid #4E686D);
         --active-border: var(--mv-input-active-border, 1px solid #1D9BC9);
         --placeholder-color: var(--mv-input-placeholder-color, #C8C6C6);
@@ -54,8 +55,9 @@ export class MvInput extends LitElement {
 
       .mv-input {
         min-width: var(--min-width);
-        max-width: var(--max-width);
+        max-width: var(--max-width);        
         border: var(--border);
+        margin: var(--margin);
         background-color: var(--mv-input-background, #FFFFFF);
         display: flex;
         flex-direction: row;
