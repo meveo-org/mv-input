@@ -111,7 +111,7 @@ export class MvInput extends LitElement {
         <input
           type="${this.type}"
           name="${this.name}"
-          value="${this.value || ""}"
+          .value="${this.value || ""}"
           placeholder="${this.placeholder || ""}"
           class="${inputClass}"
           @change="${this.inputChange}"
