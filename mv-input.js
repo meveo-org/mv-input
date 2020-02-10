@@ -117,6 +117,7 @@ export class MvInput extends LitElement {
           placeholder="${this.placeholder || ""}"
           class="${inputClass}"
           @change="${this.inputChange}"
+          @input="${this.inputBind}"
           @focusin="${this.focusInInput}"
           @focusout="${this.focusOutInput}"
         />
@@ -132,6 +133,17 @@ export class MvInput extends LitElement {
     const { value } = target;
     this.dispatchEvent(
       new CustomEvent("input-change", {
+        detail: { name, type, value, originalEvent }
+      })
+    );
+  };
+
+  inputBind = originalEvent => {
+    const { name, type } = this;
+    const { target } = originalEvent;
+    const { value } = target;
+    this.dispatchEvent(
+      new CustomEvent("input-bind", {
         detail: { name, type, value, originalEvent }
       })
     );
