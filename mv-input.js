@@ -17,7 +17,8 @@ export class MvInput extends LitElement {
       // "number", "range", "color", "checkbox",
       // "radio", "file", "submit", "image", "reset", "button"
       // default: "text"
-      type: { type: String, attribute: true }
+      type: { type: String, attribute: true },
+      disabled: { type: Boolean, attribute: true }
     };
   }
 
@@ -99,6 +100,7 @@ export class MvInput extends LitElement {
     this.focus = false;
     this.rounded = false;
     this.hasError = false;
+    this.disabled = false;
   }
 
   render() {
@@ -120,6 +122,7 @@ export class MvInput extends LitElement {
           @input="${this.inputBind}"
           @focusin="${this.focusInInput}"
           @focusout="${this.focusOutInput}"
+          ?disabled="${this.disabled}"
         />
         </span>
         <slot name="suffix"></slot>
