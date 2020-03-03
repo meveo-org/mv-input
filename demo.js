@@ -7,7 +7,6 @@ export class MvInputDemo extends LitElement {
   static get properties() {
     return {
       detail: { type: Object, attribute: false },
-      open: { type: Boolean, attribute: true },
       theme: { type: String, attribute: true }
     };
   }
@@ -25,19 +24,28 @@ export class MvInputDemo extends LitElement {
         --mv-container-margin: 20px auto;
         --mv-container-padding: 20px 30px; 
       }
+      
       mv-fa {
         color: #00B7FF;
       }
       
-      mv-fa[icon="lightbulb"] {
-        font-size: 50px;
+      fieldset > label, label > input {
         cursor: pointer;
-        margin: 20px;
       }
       
-      .theme {
-        display: flex;
-        justify-content: flex-start;
+      fieldset {
+        width: 120px;
+        margin-left: 10px;
+        border:2px solid red;
+        -moz-border-radius:8px;
+        -webkit-border-radius:8px;	
+        border-radius:8px;
+        color: #818181;
+      }
+      
+      legend {
+        font-weight: 500;
+        color: red;
       }
     `;
   }
@@ -46,16 +54,17 @@ export class MvInputDemo extends LitElement {
     super();
     this.detail = {};
     this.theme = "light";
-    this.open = true;
   }
 
   render() {
-    const iconColor = `color: ${this.open ? "yellow" : ""}`;
-    const textColor = `color: ${this.open ? "" : "#FFFFFF"}`;
+    const isLightTheme = this.theme === "light";
+    const textColor = `color: ${isLightTheme ? "" : "#FFFFFF"}`;
     return html`
-      <div class="theme">
-        <mv-fa icon="lightbulb" style="${iconColor}" @click=${this.toggleLightBulb}></mv-fa>
-      </div>
+      <fieldset>
+        <legend>Theme</legend>
+        <label><input type="radio" name="theme" value="light" checked @change="${this.radioChange}" />Light</label>
+        <label><input type="radio" name="theme" value="dark" @change="${this.radioChange}" />Dark</label>
+      </fieldset>
       <mv-container .theme="${this.theme}" style="${textColor}">
         <h2>Default</h2>
         <mv-input
@@ -102,9 +111,9 @@ export class MvInputDemo extends LitElement {
     this.detail = detail;
   };
 
-  toggleLightBulb = () => {
-    this.open = !this.open;
-    if (this.open) {
+  radioChange = originalEvent => {
+    const { target: { value } } = originalEvent;
+    if (value === "light") {
       this.theme = "light";
     } else {
       this.theme = "dark";

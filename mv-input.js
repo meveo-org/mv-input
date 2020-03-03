@@ -24,9 +24,9 @@ export class MvInput extends LitElement {
 
   static get styles() {
     return css`
-			:host {
-				--font-family: var(--mv-input-font-family, MuseoSans);
-				--font-size: var(--font-size-m, 16px);
+      :host {
+        --font-family: var(--mv-input-font-family, MuseoSans);
+        --font-size: var(--font-size-m, 16px);
         --color: var(--mv-input-color, #818181);
         --min-width: var(--mv-input-min-width, auto);
         --max-width: var(--mv-input-max-width, auto);
@@ -42,7 +42,7 @@ export class MvInput extends LitElement {
         --box-padding: 11px 8px;
         --rounded-padding: 11px 20px;
       }
-
+      
       input {
         color: var(--color);
         font-family: var(--font-family);
@@ -91,7 +91,7 @@ export class MvInput extends LitElement {
         color: var(--placeholder-color);
         font-weight: 100;
       }
-		`;
+    `;
   }
 
   constructor() {
