@@ -113,7 +113,7 @@ export class MvInput extends LitElement {
       <div class="${containerClass}">
         <slot name="prefix"></slot>
         <input
-          type="${this.type}"
+          .type="${this.type}"
           name="${this.name}"
           .value="${this.value || ""}"
           placeholder="${this.placeholder || ""}"
