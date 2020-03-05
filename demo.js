@@ -60,8 +60,7 @@ export class MvInputDemo extends LitElement {
   }
 
   render() {
-    const isLightTheme = this.theme === "light";
-    const textColor = `color: ${isLightTheme ? "" : "#FFFFFF"}`;
+    const { theme } = this;
     return html`
       <fieldset>
         <legend>Theme</legend>
@@ -71,7 +70,7 @@ export class MvInputDemo extends LitElement {
             name="theme"
             value="light"
             checked
-            @change="${this.radioChange}"
+            @change="${this.changeTheme}"
           />Light
         </label>
         <label>
@@ -79,11 +78,11 @@ export class MvInputDemo extends LitElement {
             type="radio"
             name="theme"
             value="dark"
-            @change="${this.radioChange}"
+            @change="${this.changeTheme}"
           />Dark
         </label>
       </fieldset>
-      <mv-container .theme="${this.theme}" style="${textColor}">
+      <mv-container .theme="${theme}">
         <h2>Default</h2>
         <mv-input
           name="default"
@@ -117,7 +116,7 @@ export class MvInputDemo extends LitElement {
           <i slot="suffix">&#x27A4;</i>
         </mv-input>
       </mv-container>
-      <mv-container .theme="${this.theme}" style="${textColor}">
+      <mv-container .theme="${theme}">
         <pre>${JSON.stringify(this.detail, null, 2)}</pre>
       </mv-container>
     `;
@@ -128,15 +127,9 @@ export class MvInputDemo extends LitElement {
     this.detail = detail;
   };
 
-  radioChange = originalEvent => {
-    const {
-      target: { value }
-    } = originalEvent;
-    if (value === "light") {
-      this.theme = "light";
-    } else {
-      this.theme = "dark";
-    }
+  changeTheme = originalEvent => {
+    const { target: { value } } = originalEvent;
+    this.theme = value;
   };
 }
 
