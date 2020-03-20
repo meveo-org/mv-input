@@ -24,6 +24,11 @@ To experiment with the MvInput component.
   rounded                                 // the input is rendered with rounded ends
   has-error                               // the input is rendered with error borders
   @input-change="${this.changeValue}"     // custom event dispatched when the input value is changed
+  disabled                                // the input is disabled
+  required                                // the input's placeholder has a bolder text to indicate that
+                                          // it is required
+  immediate                               // this will immediately trigger the @input-change event on key press
+                                          // otherwise, it waits for the focus to change or enter key is pressed
 >
   <button slot="prefix"> @ </button>      // shows this element before the input box
   <button slot="suffix"> >> </button>     // shows this element after the input box

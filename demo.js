@@ -106,6 +106,22 @@ export class MvInputDemo extends LitElement {
           @input-change="${this.changeValue}"
         ></mv-input>
 
+        <h2>Disabled</h2>
+        <mv-input
+          name="disabled"
+          placeholder="Disabled"
+          @input-change="${this.changeValue}"
+          disabled
+        ></mv-input>
+
+        <h2>Required</h2>
+        <mv-input
+          name="required"
+          placeholder="Required"
+          @input-change="${this.changeValue}"
+          required
+        ></mv-input>
+
         <h2>With prefix and suffix</h2>
         <mv-input
           name="with prefix and suffix"
@@ -115,6 +131,14 @@ export class MvInputDemo extends LitElement {
           <i slot="prefix">&#64;</i>
           <i slot="suffix">&#x27A4;</i>
         </mv-input>
+
+        <h2>Immediate</h2>
+        <mv-input
+          name="immediate"
+          placeholder="Immediate"
+          @input-change="${this.changeValue}"
+          immediate
+        ></mv-input>
       </mv-container>
       <mv-container .theme="${theme}">
         <pre>${JSON.stringify(this.detail, null, 2)}</pre>
@@ -128,8 +152,7 @@ export class MvInputDemo extends LitElement {
   };
 
   changeTheme = originalEvent => {
-    const { target: { value } } = originalEvent;
-    this.theme = value;
+    this.theme = originalEvent.target.value;
   };
 }
 

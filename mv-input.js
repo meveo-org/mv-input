@@ -18,7 +18,9 @@ export class MvInput extends LitElement {
       // "radio", "file", "submit", "image", "reset", "button"
       // default: "text"
       type: { type: String, attribute: true },
-      disabled: { type: Boolean, attribute: true }
+      disabled: { type: Boolean, attribute: true },
+      required: { type: Boolean, attribute: true },
+      immediate: { type: Boolean, attribute: true }
     };
   }
 
@@ -31,18 +33,33 @@ export class MvInput extends LitElement {
         --min-width: var(--mv-input-min-width, auto);
         --max-width: var(--mv-input-max-width, auto);
         --margin: var(--mv-input-margin, 0);
-        --border: var(--mv-input-border, 1px solid #4E686D);
-        --active-border: var(--mv-input-active-border, 1px solid #1D9BC9);
-        --placeholder-color: var(--mv-input-placeholder-color, #C8C6C6);
-        --active-box-shadow: var(--mv-input-active-box-shadow, inset 0 0 9px 0 rgba(29, 155, 201, 0.3));
-        --error-border: var(--mv-input-error-border, 1px solid rgba(247, 112, 98, 1));
-        --error-box-shadow: var(--mv-input-error-box-shadow, inset 0 0 9px 0 rgba(229, 47, 47, 0.3));
+        --border: var(--mv-input-border, 1px solid #4e686d);
+        --active-border: var(--mv-input-active-border, 1px solid #1d9bc9);
+        --disabled-border: var(--mv-input-disabled-border, 1px solid #c8c6c6);
+        --disabled-background: var(--mv-input-disabled-background, #f8f6f6);
+        --placeholder-color: var(--mv-input-placeholder-color, #c8c6c6);
+        --required-placeholder-color: var(
+          --mv-input-required-placeholder-color,
+          #818181
+        );
+        --active-box-shadow: var(
+          --mv-input-active-box-shadow,
+          inset 0 0 9px 0 rgba(29, 155, 201, 0.3)
+        );
+        --error-border: var(
+          --mv-input-error-border,
+          1px solid rgba(247, 112, 98, 1)
+        );
+        --error-box-shadow: var(
+          --mv-input-error-box-shadow,
+          inset 0 0 9px 0 rgba(229, 47, 47, 0.3)
+        );
         --box-radius: 5px;
         --rounded-radius: 50px;
         --box-padding: 11px 8px;
         --rounded-padding: 11px 20px;
       }
-      
+
       input {
         color: var(--color);
         font-family: var(--mv-input-font-family);
@@ -56,17 +73,23 @@ export class MvInput extends LitElement {
 
       .mv-input {
         min-width: var(--min-width);
-        max-width: var(--max-width);        
+        max-width: var(--max-width);
         border: var(--border);
         margin: var(--margin);
-        background-color: var(--mv-input-background, #FFFFFF);
+        background-color: var(--mv-input-background, #ffffff);
         display: flex;
         flex-direction: row;
       }
 
-      .mv-input:hover, .mv-input.focus {
+      .mv-input:hover:not(.disabled),
+      .mv-input.focus:not(.disabled) {
         border: var(--active-border);
         box-shadow: var(--active-box-shadow);
+      }
+
+      .mv-input.box.disabled {
+        border: var(--disabled-border);
+        background: var(--disabled-background);
       }
 
       .mv-input.box {
@@ -80,16 +103,23 @@ export class MvInput extends LitElement {
       }
 
       .mv-input.error {
-        border: var(--error-border);        
+        border: var(--error-border);
       }
 
-      .mv-input.error:hover, .mv-input.error.focus {
+      .mv-input.error:hover:not(.disabled),
+      .mv-input.error.focus:not(.disabled) {
+        border: var(--error-border);
         box-shadow: var(--error-box-shadow);
       }
 
       ::placeholder {
         color: var(--placeholder-color);
         font-weight: 100;
+      }
+
+      .required::placeholder {
+        font-weight: 700;
+        color: var(--required-placeholder-color);
       }
     `;
   }
@@ -101,14 +131,17 @@ export class MvInput extends LitElement {
     this.rounded = false;
     this.hasError = false;
     this.disabled = false;
+    this.required = false;
   }
 
   render() {
     const boxStyle = this.rounded ? "rounded" : "box";
     const focusClass = this.focus ? " focus" : "";
     const errorClass = this.hasError ? " error" : "";
-    const containerClass = `mv-input ${boxStyle}${focusClass}${errorClass}`;
-    const inputClass = `mv-input-value ${boxStyle}`;
+    const requiredClass = this.required ? " required" : "";
+    const disabledClass = this.disabled ? " disabled" : "";
+    const containerClass = `mv-input ${boxStyle}${focusClass}${errorClass}${requiredClass}${disabledClass}`;
+    const inputClass = `mv-input-value ${boxStyle}${requiredClass}`;
     return html`
       <div class="${containerClass}">
         <slot name="prefix"></slot>
@@ -118,8 +151,8 @@ export class MvInput extends LitElement {
           .value="${this.value || ""}"
           placeholder="${this.placeholder || ""}"
           class="${inputClass}"
-          @change="${this.inputChange}"
-          @input="${this.inputBind}"
+          @change="${this.inputChange()}"
+          @input="${this.inputChange(true)}"
           @focusin="${this.focusInInput}"
           @focusout="${this.focusOutInput}"
           ?disabled="${this.disabled}"
@@ -130,26 +163,20 @@ export class MvInput extends LitElement {
     `;
   }
 
-  inputChange = originalEvent => {
+  inputChange = keyPressed => originalEvent => {
     const { name, type } = this;
     const { target } = originalEvent;
     const { value } = target;
-    this.dispatchEvent(
-      new CustomEvent("input-change", {
-        detail: { name, type, value, originalEvent }
-      })
-    );
-  };
-
-  inputBind = originalEvent => {
-    const { name, type } = this;
-    const { target } = originalEvent;
-    const { value } = target;
-    this.dispatchEvent(
-      new CustomEvent("input-bind", {
-        detail: { name, type, value, originalEvent }
-      })
-    );
+    const onKeyPress = this.immediate && keyPressed;
+    const onChange = !this.immediate && !keyPressed;
+    const shouldDispatchEvent = onKeyPress || onChange;
+    if (shouldDispatchEvent) {
+      this.dispatchEvent(
+        new CustomEvent("input-change", {
+          detail: { name, type, value, originalEvent }
+        })
+      );
+    }
   };
 
   focusInInput = () => {
