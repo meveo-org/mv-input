@@ -58,17 +58,8 @@ export class MvInput extends LitElement {
         --rounded-radius: 50px;
         --box-padding: 11px 8px;
         --rounded-padding: 11px 20px;
-      }
-
-      input {
-        color: var(--color);
-        font-family: var(--mv-input-font-family);
-        font-size: var(--font-size);
-        background-color: transparent;
-        border: none;
-        outline: none;
-        padding: 0 8px;
-        width: 100%;
+        --prefix-width: var(--mv-input-prefix-width, 0);
+        --suffix-width: var(--mv-input-suffix-width, 0);
       }
 
       .mv-input {
@@ -77,8 +68,10 @@ export class MvInput extends LitElement {
         border: var(--border);
         margin: var(--margin);
         background-color: var(--mv-input-background, #ffffff);
-        display: flex;
-        flex-direction: row;
+        display: grid;
+        grid-template-areas: "prefix input-value suffix";
+        grid-template-columns: var(--prefix-width) auto var(--suffix-width);
+        align-items: center;
       }
 
       .mv-input:hover:not(.disabled),
@@ -112,6 +105,18 @@ export class MvInput extends LitElement {
         box-shadow: var(--error-box-shadow);
       }
 
+      .mv-input-value {
+        color: var(--color);
+        font-family: var(--mv-input-font-family);
+        font-size: var(--font-size);
+        background-color: transparent;
+        border: none;
+        outline: none;
+        padding: 0;
+        grid-area: input-value;
+        width: 100%;
+      }
+
       ::placeholder {
         color: var(--placeholder-color);
         font-weight: 100;
@@ -120,6 +125,18 @@ export class MvInput extends LitElement {
       .required::placeholder {
         font-weight: 700;
         color: var(--required-placeholder-color);
+      }
+
+      .prefix {
+        grid-area: prefix;
+        justify-self: center;
+        align-self: center;
+      }
+
+      .suffix {
+        grid-area: suffix;
+        justify-self: center;
+        align-self: center;
       }
     `;
   }
@@ -144,7 +161,9 @@ export class MvInput extends LitElement {
     const inputClass = `mv-input-value ${boxStyle}${requiredClass}`;
     return html`
       <div class="${containerClass}">
-        <slot name="prefix"></slot>
+        <div class="prefix">        
+          <slot name="prefix"></slot>
+        </div>
         <input
           .type="${this.type}"
           name="${this.name}"
@@ -158,7 +177,9 @@ export class MvInput extends LitElement {
           ?disabled="${this.disabled}"
         />
         </span>
-        <slot name="suffix"></slot>
+        <div class="suffix">
+          <slot name="suffix"></slot>
+        </div>
       </div>
     `;
   }

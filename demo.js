@@ -13,7 +13,7 @@ export class MvInputDemo extends LitElement {
   static get styles() {
     return css`
       :host {
-        font-family: var(--font-family, MuseoSans);
+        font-family: var(--font-family, Arial);
         font-size: var(--font-size-m, 10pt);
       }
 
@@ -49,6 +49,11 @@ export class MvInputDemo extends LitElement {
       legend {
         font-weight: 500;
         color: red;
+      }
+
+      .prefix-suffix {
+        --mv-input-prefix-width: 24px;
+        --mv-input-suffix-width: 24px;
       }
     `;
   }
@@ -125,6 +130,7 @@ export class MvInputDemo extends LitElement {
         <h2>With prefix and suffix</h2>
         <mv-input
           name="with prefix and suffix"
+          class="prefix-suffix"
           placeholder="With prefix and suffix"
           @input-change="${this.changeValue}"
         >
