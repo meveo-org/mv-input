@@ -159,6 +159,7 @@ export class MvInput extends LitElement {
     const disabledClass = this.disabled ? " disabled" : "";
     const containerClass = `mv-input ${boxStyle}${focusClass}${errorClass}${requiredClass}${disabledClass}`;
     const inputClass = `mv-input-value ${boxStyle}${requiredClass}`;
+    const notEmpty = !!value || value === 0;
     return html`
       <div class="${containerClass}">
         <div class="prefix">        
@@ -167,7 +168,7 @@ export class MvInput extends LitElement {
         <input
           .type="${this.type}"
           name="${this.name}"
-          .value="${this.value || ""}"
+          .value="${notEmpty ? this.value : ""}"
           placeholder="${this.placeholder || ""}"
           class="${inputClass}"
           @change="${this.inputChange()}"
