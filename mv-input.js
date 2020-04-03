@@ -159,7 +159,7 @@ export class MvInput extends LitElement {
     const disabledClass = this.disabled ? " disabled" : "";
     const containerClass = `mv-input ${boxStyle}${focusClass}${errorClass}${requiredClass}${disabledClass}`;
     const inputClass = `mv-input-value ${boxStyle}${requiredClass}`;
-    const notEmpty = !!value || value === 0;
+    const notEmpty = !!this.value || this.value === 0;
     return html`
       <div class="${containerClass}">
         <div class="prefix">        
