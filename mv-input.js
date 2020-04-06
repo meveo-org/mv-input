@@ -3,10 +3,10 @@ import { LitElement, html, css } from "lit-element";
 export class MvInput extends LitElement {
   static get properties() {
     return {
-      name: { type: String, attribute: true },
-      rounded: { type: Boolean, attribute: true },
-      value: { type: String, attribute: true },
-      placeholder: { type: String, attribute: true },
+      name: { type: String },
+      rounded: { type: Boolean },
+      value: { type: String },
+      placeholder: { type: String },
       focus: { type: Boolean, attribute: false },
       hasError: { type: Boolean, attribute: "has-error", reflect: true },
 
@@ -17,10 +17,17 @@ export class MvInput extends LitElement {
       // "number", "range", "color", "checkbox",
       // "radio", "file", "submit", "image", "reset", "button"
       // default: "text"
-      type: { type: String, attribute: true },
-      disabled: { type: Boolean, attribute: true },
-      required: { type: Boolean, attribute: true },
-      immediate: { type: Boolean, attribute: true }
+      type: { type: String },
+      disabled: { type: Boolean },
+      required: { type: Boolean },
+      immediate: { type: Boolean },
+      pattern: { type: String },
+      patternMatcher: {
+        type: String,
+        attribute: "pattern-matcher",
+        reflect: true
+      },
+      patternRegex: { type: String, attribute: "pattern-regex", reflect: true }
     };
   }
 
@@ -149,6 +156,9 @@ export class MvInput extends LitElement {
     this.hasError = false;
     this.disabled = false;
     this.required = false;
+    this.pattern = "";
+    this.patternMatcher = "_";
+    this.patternRegex = "\\d";
   }
 
   render() {
@@ -159,18 +169,20 @@ export class MvInput extends LitElement {
     const disabledClass = this.disabled ? " disabled" : "";
     const containerClass = `mv-input ${boxStyle}${focusClass}${errorClass}${requiredClass}${disabledClass}`;
     const inputClass = `mv-input-value ${boxStyle}${requiredClass}`;
-    const notEmpty = !!this.value || this.value === 0;
+    const value = !!this.value || this.value === 0 ? this.value : "";
+    const placeholder =
+      !!this.placeholder || this.placeholder === 0 ? this.placeholder : "";
     return html`
       <div class="${containerClass}">
         <div class="prefix">        
           <slot name="prefix"></slot>
         </div>
         <input
-          .type="${this.type}"
           name="${this.name}"
-          .value="${notEmpty ? this.value : ""}"
-          placeholder="${this.placeholder || ""}"
+          placeholder="${placeholder}"
           class="${inputClass}"
+          .type="${this.type}"
+          .value="${value}"
           @change="${this.inputChange()}"
           @input="${this.inputChange(true)}"
           @focusin="${this.focusInInput}"
@@ -185,6 +197,14 @@ export class MvInput extends LitElement {
     `;
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    if (!!this.pattern) {
+      this.matcher = new Set(this.patternMatcher);
+      this.regex = new RegExp(this.patternRegex, "g");
+    }
+  }
+
   inputChange = keyPressed => originalEvent => {
     const { name, type } = this;
     const { target } = originalEvent;
@@ -192,6 +212,7 @@ export class MvInput extends LitElement {
     const onKeyPress = this.immediate && keyPressed;
     const onChange = !this.immediate && !keyPressed;
     const shouldDispatchEvent = onKeyPress || onChange;
+    this.format(originalEvent);
     if (shouldDispatchEvent) {
       this.dispatchEvent(
         new CustomEvent("input-change", {
@@ -201,12 +222,52 @@ export class MvInput extends LitElement {
     }
   };
 
-  focusInInput = () => {
+  focusInInput = event => {
     this.focus = true;
+    if (!!this.pattern) {
+      this.format(event);
+    }
   };
 
   focusOutInput = () => {
     this.focus = false;
+  };
+
+  firstPosition = this.pattern
+    ? [...this.pattern].findIndex(character => this.matcher.has(character))
+    : -1;
+
+  clean = value => {
+    value = value.match(this.regex) || [];
+    return Array.from(this.pattern, character =>
+      value[0] === character || this.matcher.has(character)
+        ? value.shift() || character
+        : character
+    );
+  };
+
+  format = event => {
+    const { target } = event;
+    let isBackspace = event.key === "Backspace";
+    const unmaskedValue = (position =>
+      Array.from(this.pattern, (character, index) =>
+        this.matcher.has(character) ? (position = index + 1) : position
+      ))(0);
+    const [start, end] = [target.selectionStart, target.selectionEnd].map(
+      index => {
+        index = this.clean(target.value.slice(0, index)).findIndex(character =>
+          this.matcher.has(character)
+        );
+        return index < 0
+          ? unmaskedValue[unmaskedValue.length - 1]
+          : isBackspace
+          ? unmaskedValue[index - 1] || firstPosition
+          : index;
+      }
+    );
+    target.value = this.clean(target.value).join``;
+    target.setSelectionRange(start, end);
+    isBackspace = false;
   };
 }
 

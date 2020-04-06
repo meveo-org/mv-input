@@ -29,6 +29,11 @@ To experiment with the MvInput component.
                                           // it is required
   immediate                               // this will immediately trigger the @input-change event on key press
                                           // otherwise, it waits for the focus to change or enter key is pressed
+  pattern="mm/dd/yyyy"                    // This is the pattern used for input masking
+  pattern-matcher="mdy"                   // This indicates which characters in the pattern will be matched
+                                          // when entering a character (not used if pattern is not defined)
+  pattern-regex="\\d"                     // Regular expression that is used to match the input value
+                                          // (not used if pattern is not defined)
 >
   <button slot="prefix"> @ </button>      // shows this element before the input box
   <button slot="suffix"> >> </button>     // shows this element after the input box
@@ -36,3 +41,7 @@ To experiment with the MvInput component.
 ```
 
 You can also check this [demo](https://input.meveo.org/)
+
+
+## Acknowledgement
+Input masking logic is derived from [stackoverflow](https://stackoverflow.com/a/55010378)

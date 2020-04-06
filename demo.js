@@ -138,6 +138,15 @@ export class MvInputDemo extends LitElement {
           <i slot="suffix">&#x27A4;</i>
         </mv-input>
 
+        <h2>Pattern</h2>
+        <mv-input
+          name="pattern"
+          placeholder="mm/dd/yyyy"
+          @input-change="${this.changeValue}"
+          pattern="mm/dd/yyyy"
+          pattern-matcher="mdy"
+        ></mv-input>
+
         <h2>Immediate</h2>
         <mv-input
           name="immediate"
