@@ -25,9 +25,9 @@ export class MvInput extends LitElement {
       patternMatcher: {
         type: String,
         attribute: "pattern-matcher",
-        reflect: true
+        reflect: true,
       },
-      patternRegex: { type: String, attribute: "pattern-regex", reflect: true }
+      patternRegex: { type: String, attribute: "pattern-regex", reflect: true },
     };
   }
 
@@ -205,69 +205,79 @@ export class MvInput extends LitElement {
     }
   }
 
-  inputChange = keyPressed => originalEvent => {
+  inputChange = (keyPressed) => (originalEvent) => {
     const { name, type } = this;
     const { target } = originalEvent;
     const { value } = target;
     const onKeyPress = this.immediate && keyPressed;
     const onChange = !this.immediate && !keyPressed;
     const shouldDispatchEvent = onKeyPress || onChange;
-    this.format(originalEvent);
+    if(!!this.pattern) {
+      this.format(originalEvent);
+    }
     if (shouldDispatchEvent) {
       this.dispatchEvent(
         new CustomEvent("input-change", {
-          detail: { name, type, value, originalEvent }
+          detail: { name, type, value, originalEvent },
         })
       );
     }
   };
 
-  focusInInput = event => {
+  focusInInput = (event) => {
     this.focus = true;
     if (!!this.pattern) {
       this.format(event);
     }
   };
 
-  focusOutInput = () => {
+  focusOutInput = (originalEvent) => {
+    const { name, type } = this;
+    const { target } = originalEvent;
+    if (!!this.pattern && this.pattern === target.value) {
+      target.value = "";
+      this.dispatchEvent(
+        new CustomEvent("input-change", {
+          detail: { name, type, value: target.value, originalEvent },
+        })
+      );
+    }
     this.focus = false;
   };
 
-  firstPosition = this.pattern
-    ? [...this.pattern].findIndex(character => this.matcher.has(character))
-    : -1;
+  isInMatcher = (character) => this.matcher.has(character);
 
-  clean = value => {
+  clean = (value) => {
     value = value.match(this.regex) || [];
-    return Array.from(this.pattern, character =>
+    return Array.from(this.pattern, (character) =>
       value[0] === character || this.matcher.has(character)
         ? value.shift() || character
         : character
     );
   };
 
-  format = event => {
-    const { target } = event;
-    let isBackspace = event.key === "Backspace";
-    const unmaskedValue = (position =>
+  format = (event) => {
+    const { target, key } = event;
+    const unmaskedValue = ((position) =>
       Array.from(this.pattern, (character, index) =>
         this.matcher.has(character) ? (position = index + 1) : position
       ))(0);
-    const [start, end] = [target.selectionStart, target.selectionEnd].map(
-      index => {
-        index = this.clean(target.value.slice(0, index)).findIndex(character =>
-          this.matcher.has(character)
-        );
-        return index < 0
-          ? unmaskedValue[unmaskedValue.length - 1]
-          : isBackspace
-          ? unmaskedValue[index - 1] || firstPosition
-          : index;
-      }
-    );
+
+    const formattedCharacters = this.clean(target.value);
+    const index = formattedCharacters.findIndex(this.isInMatcher);
+    const isBackspace = key === "Backspace";
+    const firstPosition = [...this.pattern].findIndex(this.isInMatcher);
+    const cursorPosition =
+      index < 0
+        ? unmaskedValue[unmaskedValue.length - 1]
+        : isBackspace
+        ? unmaskedValue[index - 1] || firstPosition
+        : index;
+
     target.value = this.clean(target.value).join``;
-    target.setSelectionRange(start, end);
-    isBackspace = false;
+    setTimeout(() => {
+      target.setSelectionRange(cursorPosition, cursorPosition);
+    });
   };
 }
 
