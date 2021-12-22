@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "MvInput is a Meveo input component based on lit-element.",
   "main": "mv-input.js",
+  "module": "mv-input.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "es-dev-server --node-resolve --watch"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/meveo-org/mv-input/issues"
   },
-  "homepage": "https://github.com/meveo-org/mv-input#readme"
+  "homepage": "https://github.com/meveo-org/mv-input#readme",
+  "dependencies": {
+    "@meveo-org/mv-container": "^1.0.0"
+  },
+  "devDependencies": {
+    "es-dev-server": "^1.46.1"
+  }
 }

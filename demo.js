@@ -1,6 +1,12 @@
 import { LitElement, html, css } from "lit-element";
-import "mv-container";
 import "./mv-input.js";
+import "@meveo-org/mv-container";
+
+const moduleName = !window.importShim ? "@meveo-org/mv-container" : "mv-container"
+
+// import ("@meveo-org/mv-container").catch(() => import ("mv-container"));
+
+//console.log(importShim);
 
 export class MvInputDemo extends LitElement {
   static get properties() {
