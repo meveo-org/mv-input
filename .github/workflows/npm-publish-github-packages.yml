@@ -16,7 +16,6 @@ on:
 
 jobs:
   publish-gpr:
-    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,8 +28,6 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@meveo-org'
       - run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
