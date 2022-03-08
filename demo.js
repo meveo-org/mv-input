@@ -1,6 +1,6 @@
-import { LitElement, html, css } from "lit-element";
-import "./mv-input.js";
+import { LitElement, html, css } from "lit";
 import "@meveo-org/mv-container";
+import "./mv-input.js";
 
 const moduleName = !window.importShim ? "@meveo-org/mv-container" : "mv-container"
 
