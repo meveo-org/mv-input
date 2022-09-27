@@ -63,10 +63,13 @@ export class MvInput extends LitElement {
         );
         --box-radius: 5px;
         --rounded-radius: 50px;
-        --box-padding: 11px 8px;
+        --box-padding: var(--mv-input-box-padding, 11px 8px);
         --rounded-padding: 11px 20px;
         --prefix-width: var(--mv-input-prefix-width, 0);
         --suffix-width: var(--mv-input-suffix-width, 0);
+
+        --inactive-box-shadow: var(--mv-input-inactive-box-shadow, none);
+        --box-height: var(--mv-input-box-height, auto);
       }
 
       .mv-input {
@@ -93,8 +96,10 @@ export class MvInput extends LitElement {
       }
 
       .mv-input.box {
-        padding: var(--box-padding);
         border-radius: var(--box-radius);
+        box-shadow: var(--mv-input-inactive-box-shadow);
+        height: var(--box-height);
+        padding: var(--box-padding);
       }
 
       .mv-input.rounded {
