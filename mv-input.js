@@ -187,7 +187,7 @@ export class MvInput extends LitElement {
           placeholder="${placeholder}"
           class="${inputClass}"
           .type="${this.type}"
-          .value="${value}"
+          .value="${this.type === "file" ? "" : value}"
           @change="${this.inputChange()}"
           @input="${this.inputChange(true)}"
           @focusin="${this.focusInInput}"
@@ -213,7 +213,12 @@ export class MvInput extends LitElement {
   inputChange = (keyPressed) => (originalEvent) => {
     const { name, type } = this;
     const { target } = originalEvent;
-    const { value } = target;
+    let value;
+    if (type === "file") {
+      value = target.files[0];
+    } else {
+      value = target.value;
+    }
     const onKeyPress = this.immediate && keyPressed;
     const onChange = !this.immediate && !keyPressed;
     const shouldDispatchEvent = onKeyPress || onChange;
