@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css } from "lit-element";
 
 export class MvInput extends LitElement {
   static get properties() {
@@ -63,13 +63,10 @@ export class MvInput extends LitElement {
         );
         --box-radius: 5px;
         --rounded-radius: 50px;
-        --box-padding: var(--mv-input-box-padding, 11px 8px);
+        --box-padding: 11px 8px;
         --rounded-padding: 11px 20px;
         --prefix-width: var(--mv-input-prefix-width, 0);
         --suffix-width: var(--mv-input-suffix-width, 0);
-
-        --inactive-box-shadow: var(--mv-input-inactive-box-shadow, none);
-        --box-height: var(--mv-input-box-height, auto);
       }
 
       .mv-input {
@@ -96,10 +93,8 @@ export class MvInput extends LitElement {
       }
 
       .mv-input.box {
-        border-radius: var(--box-radius);
-        box-shadow: var(--mv-input-inactive-box-shadow);
-        height: var(--box-height);
         padding: var(--box-padding);
+        border-radius: var(--box-radius);
       }
 
       .mv-input.rounded {
@@ -187,7 +182,7 @@ export class MvInput extends LitElement {
           placeholder="${placeholder}"
           class="${inputClass}"
           .type="${this.type}"
-          .value="${value}"
+          .value="${this.type === "file" ? "" : value}"
           @change="${this.inputChange()}"
           @input="${this.inputChange(true)}"
           @focusin="${this.focusInInput}"
@@ -213,7 +208,13 @@ export class MvInput extends LitElement {
   inputChange = (keyPressed) => (originalEvent) => {
     const { name, type } = this;
     const { target } = originalEvent;
-    const { value } = target;
+
+    let value;
+    if (type === "file") {
+      value = target.files[0];
+    } else {
+      value = target.value;
+    }
     const onKeyPress = this.immediate && keyPressed;
     const onChange = !this.immediate && !keyPressed;
     const shouldDispatchEvent = onKeyPress || onChange;
