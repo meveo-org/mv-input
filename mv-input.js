@@ -35,7 +35,7 @@ export class MvInput extends LitElement {
     return css`
       :host {
         --mv-input-font-family: var(--font-family, Arial);
-        --font-size: var(--font-size-m, 16px);
+        --font-size: var(--mv-input-font-size, 16px);
         --color: var(--mv-input-color, #818181);
         --min-width: var(--mv-input-min-width, auto);
         --max-width: var(--mv-input-max-width, auto);
