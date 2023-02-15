@@ -154,16 +154,17 @@ export class MvInput extends LitElement {
       .item {
         cursor: pointer;
         background-color: #00b7ff;
-        margin: 2px;
+        margin: 2px 2px;
         padding: 2px 10px;
         border-radius: 5px;
         color: #fff;
         border: solid 1px #000;
         box-shadow: 2px 2px 2px #333;
+        display: inline-block;
       }
       .results {
         display: table;
-        margin-top: 10px;
+        padding-top: 5px;
       }
     `
   }
@@ -265,16 +266,19 @@ export class MvInput extends LitElement {
     if (keyPressed) {
       //
       if (originalEvent.data == ' ' && this.multivalued) {
-        this.multiValue.push(value)
-        this.showMultivalue = 'show'
-        this.shadowRoot.querySelector('input').value = ''
+        if (value != ' ') {
+          this.multiValue.push(value)
+          this.shadowRoot.querySelector('input').value = ''
 
-        this.results = this.focus = false
-        this.focus = true
+          this.results = this.focus = false
+          this.focus = true
 
-        this.name = 'multivalued'
+          this.name = 'multivalued'
 
-        value = this.multiValue
+          value = this.multiValue
+        } else {
+          this.shadowRoot.querySelector('input').value = ''
+        }
       }
 
       if (!!this.pattern) {
@@ -306,8 +310,6 @@ export class MvInput extends LitElement {
 
     let value
     value = this.multiValue
-
-    console.log('index : ' + index + '; results :' + this.results)
 
     this.dispatchEvent(
       new CustomEvent('input-change', {
