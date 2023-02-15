@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css } from 'lit'
 
 export class MvInput extends LitElement {
   static get properties() {
@@ -8,7 +8,7 @@ export class MvInput extends LitElement {
       value: { type: String },
       placeholder: { type: String },
       focus: { type: Boolean, attribute: false },
-      hasError: { type: Boolean, attribute: "has-error", reflect: true },
+      hasError: { type: Boolean, attribute: 'has-error', reflect: true },
 
       // valid type values include:
       // "hidden", "text", "search", "tel", "url",
@@ -21,14 +21,15 @@ export class MvInput extends LitElement {
       disabled: { type: Boolean },
       required: { type: Boolean },
       immediate: { type: Boolean },
+      multivalued: { type: Boolean },
       pattern: { type: String },
       patternMatcher: {
         type: String,
-        attribute: "pattern-matcher",
+        attribute: 'pattern-matcher',
         reflect: true,
       },
-      patternRegex: { type: String, attribute: "pattern-regex", reflect: true },
-    };
+      patternRegex: { type: String, attribute: 'pattern-regex', reflect: true },
+    }
   }
 
   static get styles() {
@@ -79,7 +80,7 @@ export class MvInput extends LitElement {
         margin: var(--margin);
         background-color: var(--mv-input-background, #ffffff);
         display: grid;
-        grid-template-areas: "prefix input-value suffix";
+        grid-template-areas: 'prefix input-value suffix';
         grid-template-columns: var(--prefix-width) auto var(--suffix-width);
         align-items: center;
       }
@@ -150,33 +151,48 @@ export class MvInput extends LitElement {
         justify-self: center;
         align-self: center;
       }
-    `;
+      .item {
+        cursor: pointer;
+        background-color: #00b7ff;
+        margin: 2px;
+        padding: 2px 10px;
+        border-radius: 5px;
+        color: #fff;
+        border: solid 1px #000;
+        box-shadow: 2px 2px 2px #333;
+      }
+      .results {
+        display: table;
+        margin-top: 10px;
+      }
+    `
   }
 
   constructor() {
-    super();
-    this.type = "text";
-    this.focus = false;
-    this.rounded = false;
-    this.hasError = false;
-    this.disabled = false;
-    this.required = false;
-    this.pattern = "";
-    this.patternMatcher = "_";
-    this.patternRegex = "\\d";
+    super()
+    this.type = 'text'
+    this.focus = false
+    this.rounded = false
+    this.hasError = false
+    this.disabled = false
+    this.required = false
+    this.pattern = ''
+    this.patternMatcher = '_'
+    this.patternRegex = '\\d'
+    this.multiValue = []
   }
 
   render() {
-    const boxStyle = this.rounded ? "rounded" : "box";
-    const focusClass = this.focus ? " focus" : "";
-    const errorClass = this.hasError ? " error" : "";
-    const requiredClass = this.required ? " required" : "";
-    const disabledClass = this.disabled ? " disabled" : "";
-    const containerClass = `mv-input ${boxStyle}${focusClass}${errorClass}${requiredClass}${disabledClass}`;
-    const inputClass = `mv-input-value ${boxStyle}${requiredClass}`;
-    const value = !!this.value || this.value === 0 ? this.value : "";
+    const boxStyle = this.rounded ? 'rounded' : 'box'
+    const focusClass = this.focus ? ' focus' : ''
+    const errorClass = this.hasError ? ' error' : ''
+    const requiredClass = this.required ? ' required' : ''
+    const disabledClass = this.disabled ? ' disabled' : ''
+    const containerClass = `mv-input ${boxStyle}${focusClass}${errorClass}${requiredClass}${disabledClass}`
+    const inputClass = `mv-input-value ${boxStyle}${requiredClass}`
+    const value = !!this.value || this.value === 0 ? this.value : ''
     const placeholder =
-      !!this.placeholder || this.placeholder === 0 ? this.placeholder : "";
+      !!this.placeholder || this.placeholder === 0 ? this.placeholder : ''
     return html`
       <div class="${containerClass}">
         <div class="prefix">        
@@ -187,7 +203,7 @@ export class MvInput extends LitElement {
           placeholder="${placeholder}"
           class="${inputClass}"
           .type="${this.type}"
-          .value="${this.type === "file" ? "" : value}"
+          .value="${this.type === 'file' ? '' : value}"
           @change="${this.inputChange()}"
           @input="${this.inputChange(true)}"
           @focusin="${this.focusInInput}"
@@ -198,97 +214,163 @@ export class MvInput extends LitElement {
         <div class="suffix">
           <slot name="suffix"></slot>
         </div>
+
+
+       
+ 
       </div>
-    `;
+
+      ${
+        this.multivalued
+          ? html`
+              <div class="results">
+                ${(this.results = this.multiValue.map(
+                  (item, index) =>
+                    html`
+                      <span
+                        class="item item${index}"
+                        @click=${() => this.removeItem(item, index)}
+                      >
+                        ${item} x
+                      </span>
+                    `,
+                ))}
+              </div>
+            `
+          : ``
+      }`
   }
 
   connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
     if (!!this.pattern) {
-      this.matcher = new Set(this.patternMatcher);
-      this.regex = new RegExp(this.patternRegex, "g");
+      this.matcher = new Set(this.patternMatcher)
+      this.regex = new RegExp(this.patternRegex, 'g')
     }
   }
 
   inputChange = (keyPressed) => (originalEvent) => {
-    const { name, type } = this;
-    const { target } = originalEvent;
-    let value;
-    if (type === "file") {
-      value = target.files[0];
+    const { name, type } = this
+    const { target } = originalEvent
+    let value
+    if (type === 'file') {
+      value = target.files[0]
     } else {
-      value = target.value;
+      value = target.value
     }
-    const onKeyPress = this.immediate && keyPressed;
-    const onChange = !this.immediate && !keyPressed;
-    const shouldDispatchEvent = onKeyPress || onChange;
-    if(!!this.pattern) {
-      this.format(originalEvent);
+    const onKeyPress = this.immediate && keyPressed
+    const onChange = !this.immediate && !keyPressed
+    const shouldDispatchEvent = onKeyPress || onChange
+
+    if (keyPressed) {
+      //
+      if (originalEvent.data == ' ' && this.multivalued) {
+        this.multiValue.push(value)
+        this.showMultivalue = 'show'
+        this.shadowRoot.querySelector('input').value = ''
+
+        this.results = this.focus = false
+        this.focus = true
+
+        this.name = 'multivalued'
+
+        value = this.multiValue
+      }
+
+      if (!!this.pattern) {
+        this.format(originalEvent)
+      }
+      if (shouldDispatchEvent) {
+        this.dispatchEvent(
+          new CustomEvent('input-change', {
+            detail: { name, type, value, originalEvent },
+          }),
+        )
+      }
     }
-    if (shouldDispatchEvent) {
-      this.dispatchEvent(
-        new CustomEvent("input-change", {
-          detail: { name, type, value, originalEvent },
-        })
-      );
+  }
+
+  removeItem(item, index, originalEvent) {
+    const { name, type } = this
+
+    if (this.multiValue.length == 1) {
+      this.results = []
+      this.multiValue = []
+    } else {
+      this.results.splice(index, 1)
+      this.multiValue.splice(index, 1)
     }
-  };
+
+    this.focus = false
+    this.focus = true
+
+    let value
+    value = this.multiValue
+
+    console.log('index : ' + index + '; results :' + this.results)
+
+    this.dispatchEvent(
+      new CustomEvent('input-change', {
+        detail: { name, type, value, originalEvent },
+      }),
+    )
+  }
 
   focusInInput = (event) => {
-    this.focus = true;
+    this.focus = true
     if (!!this.pattern) {
-      this.format(event);
+      this.format(event)
     }
-  };
+  }
 
   focusOutInput = (originalEvent) => {
-    const { name, type } = this;
-    const { target } = originalEvent;
+    const { name, type } = this
+    const { target } = originalEvent
     if (!!this.pattern && this.pattern === target.value) {
-      target.value = "";
+      target.value = ''
       this.dispatchEvent(
-        new CustomEvent("input-change", {
+        new CustomEvent('input-change', {
           detail: { name, type, value: target.value, originalEvent },
-        })
-      );
+        }),
+      )
     }
-    this.focus = false;
-  };
+    this.focus = false
+  }
 
-  isInMatcher = (character) => this.matcher.has(character);
+  isInMatcher = (character) => this.matcher.has(character)
 
   clean = (value) => {
-    value = value.match(this.regex) || [];
+    value = value.match(this.regex) || []
     return Array.from(this.pattern, (character) =>
       value[0] === character || this.matcher.has(character)
         ? value.shift() || character
-        : character
-    );
-  };
+        : character,
+    )
+  }
 
   format = (event) => {
-    const { target, key } = event;
+    const { target, key } = event
     const unmaskedValue = ((position) =>
       Array.from(this.pattern, (character, index) =>
-        this.matcher.has(character) ? (position = index + 1) : position
-      ))(0);
+        this.matcher.has(character) ? (position = index + 1) : position,
+      ))(0)
 
-    const formattedCharacters = this.clean(target.value);
-    const index = formattedCharacters.findIndex(this.isInMatcher);
-    const isBackspace = key === "Backspace";
-    const firstPosition = [...this.pattern].findIndex(this.isInMatcher);
+    const formattedCharacters = this.clean(target.value)
+    const index = formattedCharacters.findIndex(this.isInMatcher)
+    const isBackspace = key === 'Backspace'
+    const firstPosition = [...this.pattern].findIndex(this.isInMatcher)
     const cursorPosition =
       index < 0
         ? unmaskedValue[unmaskedValue.length - 1]
         : isBackspace
         ? unmaskedValue[index - 1] || firstPosition
-        : index;
+        : index
 
-    target.value = this.clean(target.value).join``;
+    target.value = this.clean(target.value).join``
     setTimeout(() => {
-      target.setSelectionRange(cursorPosition, cursorPosition);
-    });
-  };
+      target.setSelectionRange(cursorPosition, cursorPosition)
+    })
+  }
 }
 
-customElements.define("mv-input", MvInput);
+customElements.define('mv-input', MvInput)

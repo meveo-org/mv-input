@@ -160,6 +160,21 @@ export class MvInputDemo extends LitElement {
           @input-change="${this.changeValue}"
           immediate
         ></mv-input>
+
+        <h2>Multivalued</h2>
+        <mv-input
+          name="immediate"
+          placeholder="Immediate"
+          @input-change="${this.changeValue}"
+          @remove="${this.changeValue}"
+          immediate
+          multivalued
+        ></mv-input>
+
+
+
+
+
       </mv-container>
       <mv-container .theme="${theme}">
         <pre>${JSON.stringify(this.detail, null, 2)}</pre>
