@@ -181,6 +181,13 @@ export class MvInput extends LitElement {
     this.patternMatcher = '_'
     this.patternRegex = '\\d'
     this.multiValue = []
+    this.enter = true
+
+    this.addEventListener('keyup', function (event) {
+      if (event.key === 'Enter') {
+        this.enter = true
+      }
+    })
   }
 
   render() {
@@ -263,34 +270,51 @@ export class MvInput extends LitElement {
     const onChange = !this.immediate && !keyPressed
     const shouldDispatchEvent = onKeyPress || onChange
 
-    if (keyPressed) {
-      //
-      if (originalEvent.data == ' ' && this.multivalued) {
-        if (value != ' ') {
-          this.multiValue.push(value)
-          this.shadowRoot.querySelector('input').value = ''
+    if (originalEvent.data == ' ' && this.multivalued) {
+      if (value != ' ') {
+ 
+        this.multiValue.push(value)
 
-          this.results = this.focus = false
-          this.focus = true
+        this.shadowRoot.querySelector('input').value = ''
+        this.results = this.focus = false
+        this.focus = true
 
-          this.name = 'multivalued'
+        this.name = 'multivalued'
 
-          value = this.multiValue
-        } else {
-          this.shadowRoot.querySelector('input').value = ''
-        }
+        value = this.multiValue
+      } else {
+        this.shadowRoot.querySelector('input').value = ''
       }
+    } else if (this.enter == true && this.multivalued) {
 
-      if (!!this.pattern) {
-        this.format(originalEvent)
-      }
-      if (shouldDispatchEvent) {
-        this.dispatchEvent(
-          new CustomEvent('input-change', {
-            detail: { name, type, value, originalEvent },
-          }),
-        )
-      }
+        originalEvent.data += ' '
+
+
+        this.enter = false
+        this.multiValue.push(value)
+
+        this.shadowRoot.querySelector('input').value = ''
+        this.results = this.focus = false
+        this.focus = true
+
+        this.name = 'multivalued'
+
+        value = this.multiValue
+
+
+        
+
+    }
+
+    if (!!this.pattern) {
+      this.format(originalEvent)
+    }
+    if (shouldDispatchEvent) {
+      this.dispatchEvent(
+        new CustomEvent('input-change', {
+          detail: { name, type, value, originalEvent },
+        }),
+      )
     }
   }
 
