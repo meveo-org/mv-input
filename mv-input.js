@@ -101,6 +101,7 @@ export class MvInput extends LitElement {
         box-shadow: var(--mv-input-inactive-box-shadow);
         height: var(--box-height);
         padding: var(--box-padding);
+ 
       }
 
       .mv-input.rounded {
@@ -161,11 +162,16 @@ export class MvInput extends LitElement {
         border: solid 1px #000;
         box-shadow: 2px 2px 2px #333;
         display: inline-block;
+        float: left;
       }
       .results {
-        display: table;
-        padding-top: 5px;
-      }
+          display: inline-table;
+          width: 25vw;
+          padding: 0px;
+          position: inherit;
+          top:10px;
+          float: right;
+}
     `
   }
 
@@ -203,8 +209,38 @@ export class MvInput extends LitElement {
       !!this.placeholder || this.placeholder === 0 ? this.placeholder : ''
     return html`
       <div class="${containerClass}">
+
+
+
+      ${
+          this.multivalued && (this.multiValue.length> 0)
+            ? html`
+                <ul class="results">
+                  ${(this.results = this.multiValue.map(
+                    (item, index) =>
+                      html`
+                        <li
+                          class="item item${index}"
+                          @click=${() => this.removeItem(item, index)}
+                        >
+                          ${item} x
+                        </li>
+                      `,
+                  ))}
+                </ul>
+              `
+            : ``
+        }
+
+
+
         <div class="prefix">        
-          <slot name="prefix"></slot>
+          <slot name="prefix">
+
+         
+
+
+          </slot>
         </div>
         <input
           name="${this.name}"
@@ -219,6 +255,12 @@ export class MvInput extends LitElement {
           ?disabled="${this.disabled}"
         />
         </span>
+
+        
+
+
+
+
         <div class="suffix">
           <slot name="suffix"></slot>
         </div>
@@ -228,25 +270,16 @@ export class MvInput extends LitElement {
  
       </div>
 
-      ${
-        this.multivalued
-          ? html`
-              <div class="results">
-                ${(this.results = this.multiValue.map(
-                  (item, index) =>
-                    html`
-                      <span
-                        class="item item${index}"
-                        @click=${() => this.removeItem(item, index)}
-                      >
-                        ${item} x
-                      </span>
-                    `,
-                ))}
-              </div>
-            `
-          : ``
-      }`
+
+
+
+
+
+
+
+
+
+      `
   }
 
   connectedCallback() {
@@ -272,7 +305,6 @@ export class MvInput extends LitElement {
 
     if (originalEvent.data == ' ' && this.multivalued) {
       if (value != ' ') {
- 
         this.multiValue.push(value)
 
         this.shadowRoot.querySelector('input').value = ''
@@ -286,24 +318,18 @@ export class MvInput extends LitElement {
         this.shadowRoot.querySelector('input').value = ''
       }
     } else if (this.enter == true && this.multivalued) {
+      originalEvent.data += ' '
 
-        originalEvent.data += ' '
+      this.enter = false
+      this.multiValue.push(value)
 
+      this.shadowRoot.querySelector('input').value = ''
+      this.results = this.focus = false
+      this.focus = true
 
-        this.enter = false
-        this.multiValue.push(value)
+      this.name = 'multivalued'
 
-        this.shadowRoot.querySelector('input').value = ''
-        this.results = this.focus = false
-        this.focus = true
-
-        this.name = 'multivalued'
-
-        value = this.multiValue
-
-
-        
-
+      value = this.multiValue
     }
 
     if (!!this.pattern) {
