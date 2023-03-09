@@ -101,7 +101,6 @@ export class MvInput extends LitElement {
         box-shadow: var(--mv-input-inactive-box-shadow);
         height: var(--box-height);
         padding: var(--box-padding);
- 
       }
 
       .mv-input.rounded {
@@ -154,24 +153,51 @@ export class MvInput extends LitElement {
       }
       .item {
         cursor: pointer;
-        background-color: #00b7ff;
-        margin: 2px 2px;
-        padding: 2px 10px;
+        background-color: rgb(0, 183, 255);
+        margin: 0px 1%;
+        padding: 0 1%;
         border-radius: 5px;
-        color: #fff;
-        border: solid 1px #000;
-        box-shadow: 2px 2px 2px #333;
+        color: rgb(255, 255, 255);
         display: inline-block;
-        float: left;
+        line-height: 2em;
+        font-weight: normal;
+        text-align: center;
+        box-shadow: 2px 2px #ccc;
+        font-size: 14px;
+        width: 21%;
+      }
+      .item span {
+        float: right;
+        margin-left: 20px;
       }
       .results {
-          display: inline-table;
-          width: 25vw;
-          padding: 0px;
-          position: inherit;
-          top:10px;
-          float: right;
-}
+        display: inline-table;
+        width: 30em;
+        margin: 0em 0px -3em 0em;
+        position: relative;
+        bottom: 2em;
+        float: right;
+        transform: scaleY(-1) !important;
+      }
+      .results b {
+        transform: rotate(180deg);
+        transform: scaleX(-1) !important;
+        transform: scaleY(-1) !important;
+        transform: scaleY(-1) !important;
+        margin: 5px 1%;
+      }
+      .close {
+        z-index: 99;
+      }
+      input {
+        width: 50%;
+        position: relative;
+        z-index: 9;
+      }
+      .line-0,
+      .line-4 {
+        margin-top: 2.8em !important;
+      }
     `
   }
 
@@ -188,6 +214,11 @@ export class MvInput extends LitElement {
     this.patternRegex = '\\d'
     this.multiValue = []
     this.enter = true
+    this.count = 0
+
+    this.distTop = 0
+
+    this.firstLine = true
 
     this.addEventListener('keyup', function (event) {
       if (event.key === 'Enter') {
@@ -209,39 +240,29 @@ export class MvInput extends LitElement {
       !!this.placeholder || this.placeholder === 0 ? this.placeholder : ''
     return html`
       <div class="${containerClass}">
-
-
-
-      ${
-          this.multivalued && (this.multiValue.length> 0)
-            ? html`
-                <ul class="results">
-                  ${(this.results = this.multiValue.map(
-                    (item, index) =>
-                      html`
-                        <li
-                          class="item item${index}"
-                          @click=${() => this.removeItem(item, index)}
-                        >
-                          ${item} x
-                        </li>
-                      `,
-                  ))}
-                </ul>
-              `
-            : ``
-        }
-
-
-
-        <div class="prefix">        
-          <slot name="prefix">
-
-         
-
-
-          </slot>
+        <div class="prefix">
+          <slot name="prefix"></slot>
         </div>
+
+        ${this.multivalued && this.multiValue.length > 0
+          ? html`
+              <span class="results line-${this.count}">
+                ${(this.results = this.multiValue.map(
+                  (item, index) =>
+                    html`
+                      <b
+                        class="item item${index}"
+                        @click=${() => this.removeItem(item, index)}
+                      >
+                        ${item}
+                        <span class="close">x</span>
+                      </b>
+                    `,
+                ))}
+              </span>
+            `
+          : ``}
+
         <input
           name="${this.name}"
           placeholder="${placeholder}"
@@ -254,32 +275,12 @@ export class MvInput extends LitElement {
           @focusout="${this.focusOutInput}"
           ?disabled="${this.disabled}"
         />
-        </span>
-
-        
-
-
-
 
         <div class="suffix">
           <slot name="suffix"></slot>
         </div>
-
-
-       
- 
       </div>
-
-
-
-
-
-
-
-
-
-
-      `
+    `
   }
 
   connectedCallback() {
@@ -305,33 +306,15 @@ export class MvInput extends LitElement {
 
     if (originalEvent.data == ' ' && this.multivalued) {
       if (value != ' ') {
-        this.multiValue.push(value)
-
-        this.shadowRoot.querySelector('input').value = ''
-        this.results = this.focus = false
-        this.focus = true
-
-        this.name = 'multivalued'
-
-        value = this.multiValue
+        this.addValue(value,originalEvent)
       } else {
         this.shadowRoot.querySelector('input').value = ''
       }
     } else if (this.enter == true && this.multivalued) {
       originalEvent.data += ' '
-
       this.enter = false
-      this.multiValue.push(value)
-
-      this.shadowRoot.querySelector('input').value = ''
-      this.results = this.focus = false
-      this.focus = true
-
-      this.name = 'multivalued'
-
-      value = this.multiValue
+      this.addValue(value,originalEvent)
     }
-
     if (!!this.pattern) {
       this.format(originalEvent)
     }
@@ -344,12 +327,77 @@ export class MvInput extends LitElement {
     }
   }
 
+  addValue(value,originalEvent) {
+    const { name, type } = this
+    const input = this.shadowRoot.querySelector('input')
+    const results = this.shadowRoot.querySelector('.results')
+
+    this.multiValue.unshift(value)
+
+    this.count++
+    if (this.count == 5) {this.count=1}
+
+    console.log(this.count)
+
+    input.style.left = this.count * 25 + '%'
+
+    if (this.count == 4) {
+      this.distTop++
+      this.firstLine == false
+
+      this.count = 0
+
+      input.style.left = 0 + 'em'
+
+      this.firstLine = false
+      // results.style.marginBottom = '-1em'
+      if (this.firstLine == false) {
+        if (this.count <= 0) {
+          results.style.top = -(this.distTop * 2 + 0.8) + 'em'
+          results.style.marginTop = this.distTop + 'em'
+          this.distTop = 0
+        }
+
+        this.distTop = 0
+      }
+    }
+
+    input.value = ''
+    this.focus = false
+    this.focus = true
+    this.name = 'multivalued'
+    value = this.multiValue
+
+    this.dispatchEvent(
+      new CustomEvent('input-change', {
+        detail: { name, type, value, originalEvent },
+      }),
+    )
+
+
+  }
   removeItem(item, index, originalEvent) {
     const { name, type } = this
+    const input = this.shadowRoot.querySelector('input')
+
+    this.count--
+
+    if (this.count <= 0) {
+      this.count = 4
+    }
+    if (this.count == 4) {
+      this.count = 0
+      input.style.left = this.count*25 + '%'
+      this.count = 4
+    } else {
+      input.style.left = this.count * 25 + '%'
+    }
 
     if (this.multiValue.length == 1) {
-      this.results = []
       this.multiValue = []
+      this.count = 0
+      this.firstLine = true
+      this.distTop = 0
     } else {
       this.results.splice(index, 1)
       this.multiValue.splice(index, 1)
@@ -357,6 +405,8 @@ export class MvInput extends LitElement {
 
     this.focus = false
     this.focus = true
+
+    input.focus()
 
     let value
     value = this.multiValue
@@ -369,7 +419,6 @@ export class MvInput extends LitElement {
   }
 
   focusInInput = (event) => {
-    this.focus = true
     if (!!this.pattern) {
       this.format(event)
     }
@@ -378,6 +427,9 @@ export class MvInput extends LitElement {
   focusOutInput = (originalEvent) => {
     const { name, type } = this
     const { target } = originalEvent
+    const input = this.shadowRoot.querySelector('input')
+    //input.style.zIndex = '9'
+
     if (!!this.pattern && this.pattern === target.value) {
       target.value = ''
       this.dispatchEvent(

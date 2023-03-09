@@ -163,8 +163,7 @@ export class MvInputDemo extends LitElement {
 
         <h2>Multivalued</h2>
         <mv-input
-          name="immediate"
-          placeholder="Immediate"
+          name="Multivalued"
           @input-change="${this.changeValue}"
           @remove="${this.changeValue}"
           immediate
