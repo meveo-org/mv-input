@@ -83,6 +83,7 @@ export class MvInput extends LitElement {
         grid-template-areas: 'prefix input-value suffix';
         grid-template-columns: var(--prefix-width) auto var(--suffix-width);
         align-items: center;
+        padding-bottom:-1em
       }
 
       .mv-input:hover:not(.disabled),
@@ -157,7 +158,7 @@ export class MvInput extends LitElement {
         margin: 0px 1%;
         padding: 0 1%;
         border-radius: 5px;
-        color: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
         display: inline-block;
         line-height: 2em;
         font-weight: normal;
@@ -171,20 +172,16 @@ export class MvInput extends LitElement {
         margin-left: 20px;
       }
       .results {
-        display: inline-table;
-        width: 30em;
-        margin: 0em 0px -3em 0em;
-        position: relative;
-        bottom: 2em;
-        float: right;
-        transform: scaleY(-1) !important;
-      }
+    display: inline-table;
+    width: 30em;
+    top: -1.6em;
+    position: relative;
+    float: right;
+    margin-bottom: -2em;
+}
       .results b {
-        transform: rotate(180deg);
-        transform: scaleX(-1) !important;
-        transform: scaleY(-1) !important;
-        transform: scaleY(-1) !important;
-        margin: 5px 1%;
+
+        margin: 2px 1%;
       }
       .close {
         z-index: 99;
@@ -194,10 +191,8 @@ export class MvInput extends LitElement {
         position: relative;
         z-index: 9;
       }
-      .line-0,
-      .line-4 {
-        margin-top: 2.8em !important;
-      }
+      .line-0{margin-bottom:0;}
+
     `
   }
 
@@ -332,12 +327,12 @@ export class MvInput extends LitElement {
     const input = this.shadowRoot.querySelector('input')
     const results = this.shadowRoot.querySelector('.results')
 
-    this.multiValue.unshift(value)
+    this.multiValue.push(value)
 
     this.count++
     if (this.count == 5) {this.count=1}
 
-    console.log(this.count)
+
 
     input.style.left = this.count * 25 + '%'
 
@@ -353,12 +348,12 @@ export class MvInput extends LitElement {
       // results.style.marginBottom = '-1em'
       if (this.firstLine == false) {
         if (this.count <= 0) {
-          results.style.top = -(this.distTop * 2 + 0.8) + 'em'
-          results.style.marginTop = this.distTop + 'em'
-          this.distTop = 0
+          input.style.top = (this.distTop * 2 ) + 'em'
+       
+          //this.distTop = 0
         }
 
-        this.distTop = 0
+        //this.distTop = 0
       }
     }
 
@@ -382,13 +377,31 @@ export class MvInput extends LitElement {
 
     this.count--
 
-    if (this.count <= 0) {
-      this.count = 4
+    console.log(this.count)
+    if (this.count==-1){
+      this.count=3
+      this.distTop --
+      input.style.top = (this.distTop * 2) + 'em'
+  
     }
-    if (this.count == 4) {
+   if (this.count <= 0) {
       this.count = 0
+   
+
+    }
+
+    if (this.count == 4) {
+
+
+
+     
+
+
       input.style.left = this.count*25 + '%'
-      this.count = 4
+      input.style.top = (this.distTop * 2) + 'em'
+
+      this.distTop --
+      //this.count = 4
     } else {
       input.style.left = this.count * 25 + '%'
     }
@@ -402,6 +415,7 @@ export class MvInput extends LitElement {
       this.results.splice(index, 1)
       this.multiValue.splice(index, 1)
     }
+
 
     this.focus = false
     this.focus = true
