@@ -1,6 +1,6 @@
 {
   "name": "@meveo-org/mv-input",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "MvInput is a Meveo input component based on lit-element.",
   "main": "mv-input.js",
   "module": "mv-input.js",
